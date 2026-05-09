@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',  # important for GIS
+    'rest_framework',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -74,10 +77,14 @@ WSGI_APPLICATION = 'gis_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'gis_app',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
+                }
     }
-}
 
 
 # Password validation
@@ -115,3 +122,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+#GDAL ENVIRONMENT
+
+import os
+
+if os.name == 'nt':
+    QGIS_ROOT = r'C:\Program Files\QGIS 3.40.14'
+
+    # Must override these — your system env has them pointing to PostgreSQL
+    # which conflicts with the QGIS DLLs above
+    os.environ['PATH']      = QGIS_ROOT + r'\bin;' + os.environ.get('PATH', '')
+    os.environ['GDAL_DATA'] = QGIS_ROOT + r'\share\gdal'
+    os.environ['PROJ_LIB']  = QGIS_ROOT + r'\share\proj'
+    os.environ['PROJ_DATA'] = QGIS_ROOT + r'\share\proj'
+
+    GDAL_LIBRARY_PATH = QGIS_ROOT + r'\bin\gdal312.dll'
+    GEOS_LIBRARY_PATH = QGIS_ROOT + r'\bin\geos_c.dll'
+
+    
