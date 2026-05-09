@@ -5,7 +5,7 @@ from django.contrib.gis.db import models
 class Form(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    structure = models.JSONField()  # dynamic form fields
+    structure = models.JSONField(default=list)  # dynamic form fields
 
     def __str__(self):
         return self.name
