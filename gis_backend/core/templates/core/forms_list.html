@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Forms</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50:  '#f5f3ee',
+                            100: '#e8e2d5',
+                            200: '#d4c9b0',
+                            400: '#9f8a67',
+                            500: '#7d6a4f',
+                            700: '#3e3426',
+                            800: '#2a2219',
+                        },
+                        moss: '#4a6741',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="min-h-screen py-12 px-4 bg-earth-50">
+
+<div class="max-w-2xl mx-auto">
+
+    <!-- Header -->
+    <header class="mb-10">
+        <div class="flex items-center gap-2 mb-1">
+            <svg class="w-5 h-5 text-moss" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            </svg>
+
+            <span class="text-xs uppercase tracking-widest text-earth-500 font-semibold">
+                GIS Survey Platform
+            </span>
+        </div>
+
+        <h1 class="text-3xl font-bold text-earth-800">
+            Available Survey Forms
+        </h1>
+
+        <div class="mt-2 h-0.5 w-16 bg-moss rounded"></div>
+    </header>
+
+    <!-- Forms List -->
+    {% if forms %}
+        <ul class="space-y-4">
+
+            {% for form in forms %}
+            <li>
+                <div
+                    class="bg-white rounded-2xl border border-earth-100 shadow-sm px-6 py-5
+                           flex items-center justify-between gap-4
+                           transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                >
+
+                    <!-- Left side -->
+                    <div class="flex items-center gap-4">
+
+                        <!-- Icon -->
+                        <div class="w-10 h-10 rounded-xl bg-earth-50 border border-earth-100 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-moss" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+
+                        <!-- Text -->
+                        <div>
+                            <h3 class="text-earth-800 font-semibold text-base leading-tight">
+                                {{ form.name }}
+                            </h3>
+                            <p class="text-xs text-earth-400 tracking-wide">
+                                ID: {{ form.id }}
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Action -->
+                    <a
+                        href="{% url 'render-form' form.id %}"
+                        class="flex items-center gap-2 bg-moss text-white text-sm font-semibold px-4 py-2 rounded-xl
+                               transition-all duration-200 hover:bg-green-900"
+                        aria-label="Open form {{ form.name }}"
+                    >
+                        Open Form
+
+                        <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+                             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+
+                </div>
+            </li>
+            {% endfor %}
+
+        </ul>
+
+    {% else %}
+
+        <!-- Empty State -->
+        <div class="bg-white rounded-2xl border border-earth-100 shadow-sm px-6 py-12 text-center">
+
+            <svg class="w-10 h-10 text-earth-200 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+
+            <p class="text-earth-400 text-sm mb-4">
+                No survey forms available yet.
+            </p>
+
+            <p class="text-xs text-earth-300">
+                Create a form to start collecting GIS field data.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-earth-400 mt-8 tracking-wide">
+        GIS Survey Platform • Select a form to begin data collection
+    </footer>
+
+</div>
+
+</body>
+</html>
