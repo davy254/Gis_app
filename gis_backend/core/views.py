@@ -3,6 +3,7 @@ import json
 from django.contrib.gis.geos import Point
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_POST
 from rest_framework import viewsets
 
 from .models import Form, Submission
@@ -63,7 +64,7 @@ def form_builder(request):
     """
     return render(request, 'core/form_builder.html')
 
-
+@require_POST
 def save_form(request):
     """
     Persist a new Form created via the form builder.
@@ -124,7 +125,7 @@ def render_form(request, form_id):
         'structure': json.dumps(form.structure),
     })
 
-
+@require_POST
 def submit_data(request):
     """
     Accept and persist a form submission, with optional GPS location.

@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import Point
 # Standard DRF serializer base classes
 from rest_framework import serializers
 
@@ -65,3 +66,84 @@ class SubmissionSerializer(GeoFeatureModelSerializer):
 
         # Prevent id and created_at from being writable on POST/PUT
         read_only_fields = ('id', 'created_at')
+
+    
+    # -----------------------------------------------------
+    # Robust GIS validation (handles dict + Point)
+    # -----------------------------------------------------
+
+    def validate_location(self, value):
+
+
+        if value is None:
+            return value
+
+        # -----------------------------------------------------
+        # CASE 1: Incoming GeoJSON dict
+        # -----------------------------------------------------
+        if isinstance(value, dict):
+
+            try:
+                geometry_type = value.get("type")
+                coords = value.get("coordinates", [])
+
+                # Ensure geometry type is Point
+                if geometry_type != "Point":
+                    raise serializers.ValidationError(
+                        "Only Point geometry is supported."
+                    )
+
+                longitude = coords[0]
+                latitude = coords[1]
+
+            except (IndexError, TypeError):
+                raise serializers.ValidationError(
+                    "Invalid GeoJSON coordinates."
+                )
+
+        # -----------------------------------------------------
+        # CASE 2: Already a GeoDjango Point
+        # -----------------------------------------------------
+        elif isinstance(value, Point):
+
+            longitude = value.x
+            latitude = value.y
+
+            return value
+
+        else:
+            raise serializers.ValidationError(
+                "Invalid location format."
+            )
+
+        # -----------------------------------------------------
+        # Ensure coordinates are numeric
+        # -----------------------------------------------------
+        try:
+            longitude = float(longitude)
+            latitude = float(latitude)
+
+        except (ValueError, TypeError):
+            raise serializers.ValidationError(
+                "Coordinates must be numeric values."
+            )
+
+        # -----------------------------------------------------
+        # Validate coordinate ranges
+        # -----------------------------------------------------
+        if not (-180 <= longitude <= 180):
+            raise serializers.ValidationError(
+                "Longitude out of range."
+            )
+
+        if not (-90 <= latitude <= 90):
+            raise serializers.ValidationError(
+                "Latitude out of range."
+            )
+
+        # -----------------------------------------------------
+        # Convert GeoJSON -> GeoDjango Point
+        # IMPORTANT FIX
+        # -----------------------------------------------------
+        return Point(longitude, latitude)
+        
