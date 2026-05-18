@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from .models import Form, Submission
 from .serializers import FormSerializer, SubmissionSerializer
@@ -171,3 +173,59 @@ def submit_data(request):
         )
 
         return JsonResponse({'message': 'Data submitted successfully'})
+
+
+@api_view(['GET'])
+def submissions_geojson(request):
+
+    submissions = Submission.objects.all()
+
+    features = []
+
+    for s in submissions:
+
+        if s.location:
+
+            features.append({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        s.location.x,
+                        s.location.y
+                    ]
+                },
+                "properties": {
+                    "id": s.id,
+                    "form": s.form.name,
+                    "form_id": s.form.id, 
+                    "data": s.data,
+                    "created_at": s.created_at
+                }
+            })
+
+    return Response({
+        "type": "FeatureCollection",
+        "features": features
+    })
+
+def dashboard(request):
+    return render(request, 'core/dashboard.html')
+
+@api_view(['GET'])
+def forms_api(request):
+
+    forms = Form.objects.all()
+
+    data = []
+
+    for f in forms:
+        data.append({
+            "id": f.id,
+            "name": f.name
+        })
+
+    return Response(data)
+
+def landing(requests):
+    return render(requests, 'core/landing.html')

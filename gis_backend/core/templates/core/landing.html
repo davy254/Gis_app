@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GIS Field Data Platform</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50:  '#f5f3ee',
+                            100: '#e8e2d5',
+                            200: '#d4c9b0',
+                            400: '#9f8a67',
+                            500: '#7d6a4f',
+                            700: '#3e3426',
+                            800: '#2a2219',
+                        },
+                        moss: '#4a6741',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-earth-50 text-earth-800">
+
+<!-- HERO -->
+<section class="bg-gradient-to-br from-earth-800 to-moss text-white py-20 px-6 text-center">
+
+    <h1 class="text-4xl md:text-5xl font-bold">
+        GIS Field Data Collection Platform
+    </h1>
+
+    <p class="mt-4 max-w-2xl mx-auto text-earth-100 text-lg">
+        A modern geospatial system for field surveys, environmental monitoring,
+        infrastructure mapping, and agricultural analysis.
+    </p>
+
+</section>
+
+<!-- MAIN CONTENT -->
+<div class="max-w-6xl mx-auto px-6 py-12">
+
+    <!-- MODULES -->
+    <h2 class="text-2xl font-bold text-center mb-8">
+        Access System Modules
+    </h2>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- GIS DASHBOARD -->
+        <a href="/dashboard/"
+           class="bg-white border border-earth-100 rounded-2xl p-6 shadow-sm
+                  hover:-translate-y-1 hover:shadow-lg transition duration-200">
+
+            <div class="text-3xl">🗺️</div>
+            <h3 class="font-semibold mt-3">GIS Dashboard</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                View collected data on interactive maps and analyze spatial patterns.
+            </p>
+
+        </a>
+
+        <!-- FORM BUILDER -->
+        <a href="/builder/"
+           class="bg-white border border-earth-100 rounded-2xl p-6 shadow-sm
+                  hover:-translate-y-1 hover:shadow-lg transition duration-200">
+
+            <div class="text-3xl">🧾</div>
+            <h3 class="font-semibold mt-3">Form Builder</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Create dynamic survey forms without coding.
+            </p>
+
+        </a>
+
+        <!-- DATA COLLECTION -->
+        <a href="/forms/"
+           class="bg-white border border-earth-100 rounded-2xl p-6 shadow-sm
+                  hover:-translate-y-1 hover:shadow-lg transition duration-200">
+
+            <div class="text-3xl">📋</div>
+            <h3 class="font-semibold mt-3">Data Collection</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Submit field data with GPS location capture.
+            </p>
+
+        </a>
+
+        <!-- LOGIN -->
+        <div class="bg-earth-100 border border-earth-200 rounded-2xl p-6 opacity-80">
+
+            <div class="text-3xl">🔐</div>
+            <h3 class="font-semibold mt-3">Login System</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Coming soon: secure authentication for field teams.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- FEATURES -->
+    <h2 class="text-2xl font-bold text-center mt-16 mb-8">
+        Platform Capabilities
+    </h2>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div class="bg-white p-6 rounded-2xl border border-earth-100 shadow-sm">
+            <div class="text-3xl">📍</div>
+            <h3 class="font-semibold mt-3">GPS Data Capture</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Accurate location-based field data collection.
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-earth-100 shadow-sm">
+            <div class="text-3xl">📡</div>
+            <h3 class="font-semibold mt-3">Offline Sync</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Android app will support offline data collection.
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-earth-100 shadow-sm">
+            <div class="text-3xl">🛰️</div>
+            <h3 class="font-semibold mt-3">Satellite Mapping</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Multi-basemap visualization for spatial analysis.
+            </p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-earth-100 shadow-sm">
+            <div class="text-3xl">📊</div>
+            <h3 class="font-semibold mt-3">Data Analytics</h3>
+            <p class="text-sm text-earth-500 mt-2">
+                Analyze trends and spatial patterns.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- ROADMAP -->
+    <div class="mt-16 bg-white border border-earth-100 rounded-2xl p-6 shadow-sm">
+
+        <h2 class="text-xl font-bold mb-4">
+            Future Development Roadmap
+        </h2>
+
+        <div class="flex flex-wrap gap-2">
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                User Authentication
+            </span>
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                Role-Based Access
+            </span>
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                Android Sync
+            </span>
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                Heatmaps
+            </span>
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                Marker Clustering
+            </span>
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                Real-time Tracking
+            </span>
+
+            <span class="px-3 py-1 bg-earth-100 text-earth-700 rounded-full text-xs">
+                AI Data Validation
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

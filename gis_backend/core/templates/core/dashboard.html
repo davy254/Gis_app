@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GIS Dashboard</title>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50:  '#f5f3ee',
+                            100: '#e8e2d5',
+                            200: '#d4c9b0',
+                            400: '#9f8a67',
+                            500: '#7d6a4f',
+                            700: '#3e3426',
+                            800: '#2a2219',
+                        },
+                        moss: '#4a6741',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="h-screen flex bg-earth-50 overflow-hidden">
+
+<!-- MAP -->
+<div id="map" class="w-2/3 h-full"></div>
+
+<!-- SIDEBAR -->
+<div class="w-1/3 flex flex-col border-l border-earth-200 bg-white">
+
+    <!-- HEADER -->
+    <div class="p-4 bg-moss text-white">
+        <h3 class="text-lg font-semibold">GIS Dashboard</h3>
+        <p class="text-xs opacity-80">Field Data Monitoring</p>
+    </div>
+
+    <!-- FILTER -->
+    <div class="p-3 border-b border-earth-100 bg-earth-50">
+        <label class="text-xs font-semibold text-earth-700 uppercase tracking-wide">
+            Filter by Form
+        </label>
+
+        <select id="formFilter"
+            class="w-full mt-2 p-2 rounded-lg border border-earth-200 focus:outline-none focus:ring-2 focus:ring-moss">
+            <option value="">Select Form</option>
+        </select>
+    </div>
+
+    <!-- LIST -->
+    <div id="submissionList"
+        class="flex-1 overflow-y-auto space-y-2 p-2 bg-earth-50">
+
+        <!-- JS injects cards -->
+    </div>
+
+    <!-- DETAILS -->
+    <div id="details"
+        class="h-64 overflow-y-auto border-t border-earth-200 bg-white p-4">
+
+        <div class="text-earth-400 text-sm">
+            Select a submission
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let geojsonData = null;
+let filteredData = null;
+let activeFormId = "";
+
+let map;
+let markers = [];
+
+/////////////////////////////
+// MAP
+/////////////////////////////
+
+function initMap() {
+
+    map = L.map('map').setView([-1.2921, 36.8219], 6);
+
+    const osm = L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    );
+
+    const satellite = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+        'World_Imagery/MapServer/tile/{z}/{y}/{x}'
+    );
+
+    const terrain = L.tileLayer(
+        'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+    );
+
+    const dark = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    );
+
+    osm.addTo(map);
+
+    L.control.layers({
+        "OSM": osm,
+        "Satellite": satellite,
+        "Terrain": terrain,
+        "Dark": dark
+    }).addTo(map);
+}
+
+/////////////////////////////
+// LOAD FORMS
+/////////////////////////////
+
+async function loadForms() {
+
+    let res = await fetch('/api/forms/');
+    let forms = await res.json();
+
+    let dropdown = document.getElementById("formFilter");
+
+    forms.forEach(form => {
+        let option = document.createElement("option");
+        option.value = form.id;
+        option.textContent = form.name;
+        dropdown.appendChild(option);
+    });
+}
+
+/////////////////////////////
+// LOAD DATA
+/////////////////////////////
+
+async function loadData() {
+
+    let res = await fetch('/api/submissions-geojson/');
+    geojsonData = await res.json();
+
+    applyFilters();
+}
+
+/////////////////////////////
+// FILTER ENGINE
+/////////////////////////////
+
+function applyFilters() {
+
+    if (!geojsonData) return;
+
+    if (!activeFormId) {
+
+        renderMap({ type: "FeatureCollection", features: [] });
+        renderList({ type: "FeatureCollection", features: [] });
+
+        document.getElementById("details").innerHTML =
+            `<div class="text-earth-400 text-sm">Select a form to view submissions</div>`;
+
+        return;
+    }
+
+    filteredData = {
+        ...geojsonData,
+        features: geojsonData.features.filter(
+            f => String(f.properties.form_id) === String(activeFormId)
+        )
+    };
+
+    renderMap(filteredData);
+    renderList(filteredData);
+
+    document.getElementById("details").innerHTML =
+        `<div class="text-earth-400 text-sm">Select a submission</div>`;
+}
+
+/////////////////////////////
+// MAP RENDER
+/////////////////////////////
+
+function renderMap(data) {
+
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    data.features.forEach(f => {
+
+        const c = f.geometry.coordinates;
+
+        const marker = L.marker([c[1], c[0]]).addTo(map);
+
+        marker.on("click", () => showDetails(f));
+
+        markers.push(marker);
+    });
+}
+
+/////////////////////////////
+// LIST RENDER (TAILWIND APPLIED)
+/////////////////////////////
+
+function renderList(data) {
+
+    let container = document.getElementById("submissionList");
+    container.innerHTML = "";
+
+    if (!data.features.length) {
+        container.innerHTML = `
+            <div class="text-center text-earth-400 text-sm p-6">
+                No submissions to display
+            </div>
+        `;
+        return;
+    }
+
+    data.features.forEach(f => {
+
+        let div = document.createElement("div");
+
+        div.className = `
+            bg-white border border-earth-100 rounded-xl p-3
+            shadow-sm hover:shadow-md cursor-pointer
+            transition-all duration-200
+        `;
+
+        div.innerHTML = `
+            <div class="text-earth-800 font-semibold text-sm">
+                ${f.properties.form}
+            </div>
+
+            <div class="text-xs text-earth-500 mt-1">
+                ID: ${f.properties.id}
+            </div>
+
+            <div class="text-xs text-earth-400 mt-1">
+                ${new Date(f.properties.created_at).toLocaleString()}
+            </div>
+        `;
+
+        div.onclick = () => {
+            showDetails(f);
+            focusMap(f);
+        };
+
+        container.appendChild(div);
+    });
+}
+
+/////////////////////////////
+// DETAILS (TAILWIND APPLIED)
+/////////////////////////////
+
+function showDetails(feature) {
+
+    const props = feature.properties;
+    const data = props.data;
+
+    let html = "";
+
+    for (const key in data) {
+
+        const value = data[key];
+
+        html += `
+            <div class="bg-earth-50 border border-earth-100 rounded-lg p-3 mb-2">
+
+                <div class="text-xs font-semibold text-earth-500 uppercase">
+                    ${key}
+                </div>
+
+                <div class="text-sm text-earth-800 mt-1">
+                    ${value || "-"}
+                </div>
+
+            </div>
+        `;
+    }
+
+    document.getElementById("details").innerHTML = `
+        <div class="mb-3">
+            <div class="text-earth-800 font-semibold">
+                ${props.form}
+            </div>
+
+            <div class="text-xs text-earth-500">
+                #${props.id}
+            </div>
+
+            <div class="text-xs text-earth-400">
+                ${new Date(props.created_at).toLocaleString()}
+            </div>
+        </div>
+
+        <div class="text-xs font-semibold text-earth-500 uppercase mb-2">
+            Survey Responses
+        </div>
+
+        ${html}
+    `;
+}
+
+/////////////////////////////
+// FOCUS MAP
+/////////////////////////////
+
+function focusMap(f) {
+    let c = f.geometry.coordinates;
+    map.setView([c[1], c[0]], 15);
+}
+
+/////////////////////////////
+// EVENTS
+/////////////////////////////
+
+document.getElementById("formFilter")
+.addEventListener("change", e => {
+    activeFormId = e.target.value;
+    applyFilters();
+});
+
+/////////////////////////////
+// INIT
+/////////////////////////////
+
+async function init() {
+    initMap();
+    await loadForms();
+    await loadData();
+}
+
+window.onload = init;
+
+</script>
+
+</body>
+</html>
