@@ -1,187 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>GIS Form Builder</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+<title>GIS Dynamic Form Builder</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        earth: {
-                            50:  '#f5f3ee',
-                            100: '#e8e2d5',
-                            200: '#d4c9b0',
-                            400: '#9f8a67',
-                            500: '#7d6a4f',
-                            700: '#3e3426',
-                            800: '#2a2219',
-                        },
-                        moss: '#4a6741',
-                    }
-                }
-            }
-        }
-    </script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+body{
+    background:#f5f3ee;
+}
+
+.field-card{
+    background:white;
+    border:1px solid #e8e2d5;
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:16px;
+}
+
+.field-input{
+    width:100%;
+    padding:10px;
+    border:1px solid #d4c9b0;
+    border-radius:8px;
+}
+
+.field-input:focus{
+    outline:none;
+    border-color:#3a7ca5;
+}
+
+.btn{
+    padding:8px 12px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-dark{
+    background:#2a2219;
+    color:white;
+}
+
+.btn-green{
+    background:#4a6741;
+    color:white;
+}
+
+.btn-blue{
+    background:#3a7ca5;
+    color:white;
+}
+
+.remove-btn{
+    color:red;
+    background:none;
+    border:none;
+    cursor:pointer;
+}
+
+.option-row{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+}
+
+.section-label{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#666;
+    margin-bottom:4px;
+}
+
+</style>
 </head>
 
-<body class="min-h-screen bg-earth-50 py-10 px-4">
+<body class="p-8">
 
-<div class="max-w-3xl mx-auto">
+<div class="max-w-4xl mx-auto">
 
-    <!-- Header -->
-    <div class="mb-8">
-        <span class="text-xs uppercase tracking-widest text-earth-500 font-semibold">
-            GIS Survey Platform
-        </span>
+    <!-- PAGE HEADER -->
+    <h1 class="text-3xl font-bold mb-6">
+        GIS Dynamic Form Builder
+    </h1>
 
-        <h1 class="text-3xl font-bold text-earth-800 mt-1">
-            Create GIS Survey Form
-        </h1>
+    <!-- FORM NAME -->
+    <div class="bg-white p-5 rounded-xl shadow-sm mb-6">
 
-        <div class="mt-2 h-0.5 w-16 bg-moss rounded"></div>
+        <label class="block mb-2 font-semibold">
+            Form Name
+        </label>
+
+        <input
+            id="form-name"
+            class="field-input"
+            placeholder="Example: Farmer Registration Form"
+        >
+
     </div>
 
-    <!-- Card -->
-    <div class="bg-white border border-earth-100 rounded-2xl shadow-sm p-6">
+    <!-- TOOLBAR -->
+    <div class="flex gap-2 flex-wrap mb-6">
 
-        <!-- Form Name -->
-        <div class="mb-5">
-            <label class="block text-sm font-semibold text-earth-700 mb-2">
-                Form Name
-            </label>
-
-            <input
-                type="text"
-                id="form-name"
-                class="w-full px-4 py-2 rounded-xl border border-earth-100
-                       focus:outline-none focus:ring-2 focus:ring-moss"
-                placeholder="Enter form name"
-            >
-        </div>
-
-        <!-- Add Field Button -->
-        <button
-            onclick="addField()"
-            class="bg-earth-700 text-white px-4 py-2 rounded-xl text-sm font-semibold
-                   hover:bg-earth-800 transition-all duration-200"
-        >
-            + Add Field
+        <button class="btn btn-dark"
+                onclick="addField('text')">
+            + Text
         </button>
 
-        <!-- Fields Container -->
-        <div id="fields-container" class="mt-5 space-y-3"></div>
+        <button class="btn btn-dark"
+                onclick="addField('number')">
+            + Number
+        </button>
 
-        <!-- Save Button -->
-        <button
-            onclick="saveForm()"
-            class="mt-6 w-full bg-moss text-white px-4 py-3 rounded-xl font-semibold
-                   hover:bg-green-900 transition-all duration-200"
-        >
-            Save Form
+        <button class="btn btn-dark"
+                onclick="addField('date')">
+            + Date
+        </button>
+
+        <button class="btn btn-blue"
+                onclick="addField('gps')">
+            + GPS
+        </button>
+
+        <button class="btn btn-green"
+                onclick="addField('dropdown')">
+            + Dropdown
         </button>
 
     </div>
+
+    <!-- FIELDS -->
+    <div id="fields-container"></div>
+
+    <button
+        onclick="saveForm()"
+        class="btn btn-green w-full mt-4">
+
+        Save Form
+
+    </button>
+
 </div>
 
 <script>
-function addField() {
-    const fieldHTML = `
-        <div class="border border-earth-100 rounded-2xl p-4 bg-earth-50">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+const fieldsContainer =
+    document.getElementById("fields-container");
 
-                <!-- Label -->
-                <div>
-                    <label class="block text-sm font-semibold text-earth-700 mb-2">
-                        Field Label
-                    </label>
+let fieldCounter = 0;
 
-                    <input
-                        type="text"
-                        class="field-label w-full px-3 py-2 rounded-xl border border-earth-200
-                               focus:outline-none focus:ring-2 focus:ring-moss"
-                        placeholder="Enter label"
-                    >
-                </div>
+/////////////////////////////////////////////////////////
+// ADD FIELD
+/////////////////////////////////////////////////////////
 
-                <!-- Type -->
-                <div>
-                    <label class="block text-sm font-semibold text-earth-700 mb-2">
-                        Field Type
-                    </label>
+function addField(type){
 
-                    <select
-                        class="field-type w-full px-3 py-2 rounded-xl border border-earth-200
-                               focus:outline-none focus:ring-2 focus:ring-moss"
-                    >
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="dropdown">Dropdown</option>
-                        <option value="date">Date</option>
-                        <option value="gps">GPS</option>
-                        <option value="photo">Photo</option>
-                    </select>
-                </div>
+    fieldCounter++;
 
-            </div>
-        </div>
-    `;
+    let html = "";
 
-    document.getElementById("fields-container")
-        .insertAdjacentHTML("beforeend", fieldHTML);
-}
+    switch(type){
 
-async function saveForm() {
-    let labels = document.querySelectorAll(".field-label");
-    let types = document.querySelectorAll(".field-type");
+        case "text":
+            html = createFieldCard("text");
+            break;
 
-    let structure = [];
+        case "number":
+            html = createFieldCard("number");
+            break;
 
-    for (let i = 0; i < labels.length; i++) {
-        structure.push({
-            label: labels[i].value,
-            type: types[i].value
-        });
+        case "date":
+            html = createFieldCard("date");
+            break;
+
+        case "gps":
+            html = createGPSCard();
+            break;
+
+        case "dropdown":
+            html = createDropdownCard(fieldCounter);
+            break;
     }
 
-    let data = {
-        name: document.getElementById("form-name").value,
+    fieldsContainer.insertAdjacentHTML(
+        "beforeend",
+        html
+    );
+}
+
+/////////////////////////////////////////////////////////
+// STANDARD FIELD
+/////////////////////////////////////////////////////////
+
+function createFieldCard(type){
+
+    return `
+    <div class="field-card">
+
+        <div class="section-label">
+            Field Label
+        </div>
+
+        <input
+            class="field-input field-label"
+            placeholder="Enter field label">
+
+        <input
+            type="hidden"
+            class="field-type"
+            value="${type}">
+
+        <button
+            class="remove-btn mt-3"
+            onclick="this.parentElement.remove()">
+
+            Remove Field
+
+        </button>
+
+    </div>
+    `;
+}
+
+/////////////////////////////////////////////////////////
+// GPS FIELD
+/////////////////////////////////////////////////////////
+
+function createGPSCard(){
+
+    return `
+    <div class="field-card">
+
+        <div class="section-label">
+            GPS Field Label
+        </div>
+
+        <input
+            class="field-input field-label"
+            placeholder="GPS Location">
+
+        <input
+            type="hidden"
+            class="field-type"
+            value="gps">
+
+        <button
+            class="remove-btn mt-3"
+            onclick="this.parentElement.remove()">
+
+            Remove Field
+
+        </button>
+
+    </div>
+    `;
+}
+
+/////////////////////////////////////////////////////////
+// DROPDOWN FIELD
+/////////////////////////////////////////////////////////
+
+function createDropdownCard(id){
+
+    return `
+    <div class="field-card dropdown-card">
+
+        <div class="section-label">
+            Dropdown Label
+        </div>
+
+        <input
+            class="field-input field-label"
+            placeholder="Crop Type">
+
+        <input
+            type="hidden"
+            class="field-type"
+            value="dropdown">
+
+        <div class="mt-4">
+
+            <div class="section-label">
+                Dropdown Preview
+            </div>
+
+            <select
+                id="preview-${id}"
+                class="field-input dropdown-preview">
+
+                <option>
+                    Select option
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="options-container mt-4"></div>
+
+        <button
+            class="btn btn-blue mt-3"
+            onclick="addOption(this, ${id})">
+
+            + Add Option
+
+        </button>
+
+        <button
+            class="remove-btn mt-3"
+            onclick="this.parentElement.remove()">
+
+            Remove Field
+
+        </button>
+
+    </div>
+    `;
+}
+
+/////////////////////////////////////////////////////////
+// ADD OPTION
+/////////////////////////////////////////////////////////
+
+function addOption(button,id){
+
+    const container =
+        button.parentElement
+              .querySelector(".options-container");
+
+    const html = `
+    <div class="option-row">
+
+        <input
+            class="field-input option-input"
+            placeholder="Option"
+
+            oninput="updateDropdownPreview(${id}, this)">
+
+        <button
+            class="remove-btn"
+            onclick="removeOption(this, ${id})">
+
+            X
+
+        </button>
+
+    </div>
+    `;
+
+    container.insertAdjacentHTML(
+        "beforeend",
+        html
+    );
+
+    refreshDropdown(id);
+}
+
+/////////////////////////////////////////////////////////
+// REMOVE OPTION
+/////////////////////////////////////////////////////////
+
+function removeOption(button,id){
+
+    button.parentElement.remove();
+
+    refreshDropdown(id);
+}
+
+/////////////////////////////////////////////////////////
+// UPDATE OPTION
+/////////////////////////////////////////////////////////
+
+function updateDropdownPreview(id){
+
+    refreshDropdown(id);
+}
+
+/////////////////////////////////////////////////////////
+// REFRESH DROPDOWN
+/////////////////////////////////////////////////////////
+
+function refreshDropdown(id){
+
+    const card =
+        document
+        .querySelector(`#preview-${id}`)
+        .closest(".dropdown-card");
+
+    const preview =
+        document.getElementById(`preview-${id}`);
+
+    preview.innerHTML =
+        `<option>Select option</option>`;
+
+    card.querySelectorAll(".option-input")
+    .forEach(input => {
+
+        if(input.value.trim()){
+
+            preview.innerHTML += `
+            <option>
+                ${input.value}
+            </option>
+            `;
+        }
+    });
+}
+
+/////////////////////////////////////////////////////////
+// SAVE FORM
+/////////////////////////////////////////////////////////
+
+async function saveForm() {
+
+    const formName =
+        document.getElementById("form-name")
+        .value.trim();
+
+    if (!formName) {
+        alert("Please enter a form name.");
+        return;
+    }
+
+    const structure = [];
+
+    document
+    .querySelectorAll(".field-card")
+    .forEach(card => {
+
+        const label =
+            card.querySelector(".field-label")
+            ?.value
+            ?.trim();
+
+        const type =
+            card.querySelector(".field-type")
+            ?.value;
+
+        if (!label) return;
+
+        const field = {
+            label: label,
+            type: type
+        };
+
+        if (type === "dropdown") {
+
+            field.options = [];
+
+            card.querySelectorAll(".option-input")
+            .forEach(opt => {
+
+                if (opt.value.trim()) {
+                    field.options.push(opt.value.trim());
+                }
+            });
+        }
+
+        structure.push(field);
+    });
+
+    const payload = {
+        name: formName,
         structure: structure
     };
 
-    let response = await fetch("/api/forms/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
-        },
-        body: JSON.stringify(data)
-    });
+    try {
 
-    if (response.ok) {
-        let result = await response.json();
-        alert(`Form '${result.name}' saved successfully!`);
-    } else {
-        let error = await response.json();
-        alert("Error: " + JSON.stringify(error));
+        const response = await fetch("/api/forms/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+
+            const result = await response.json();
+
+            alert(
+                `Form "${result.name}" saved successfully`
+            );
+
+            console.log(result);
+
+        } else {
+
+            const error =
+                await response.json();
+
+            console.error(error);
+
+            alert(
+                "Failed to save form."
+            );
+        }
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Network error while saving form."
+        );
     }
 }
 
 function getCookie(name) {
+
     let cookieValue = null;
 
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
+    if (document.cookie &&
+        document.cookie !== '') {
 
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
+        const cookies =
+            document.cookie.split(';');
 
-            if (cookie.substring(0, name.length + 1) === (name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        for (let cookie of cookies) {
+
+            cookie = cookie.trim();
+
+            if (
+                cookie.startsWith(
+                    name + '='
+                )
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
                 break;
             }
         }
@@ -189,6 +547,7 @@ function getCookie(name) {
 
     return cookieValue;
 }
+
 </script>
 
 </body>

@@ -195,6 +195,36 @@ structure.forEach(field => {
                 <input type="file" name="${field.label}" accept="image/*" class="hidden">
             </label>`;
     }
+    else if (field.type === 'dropdown') {
+
+        let optionsHTML = `
+            <option value="">
+                Select ${field.label}
+            </option>
+        `;
+
+        if (field.options) {
+
+            field.options.forEach(option => {
+
+                optionsHTML += `
+                    <option value="${option}">
+                        ${option}
+                    </option>
+                `;
+            });
+        }
+
+        inner = `
+            <select
+                name="${field.label}"
+                class="${inputBase}">
+
+                ${optionsHTML}
+
+            </select>
+        `;
+    }
  
     const html = `
         <div class="field-card bg-earth-50 rounded-xl p-4 border border-earth-100">
