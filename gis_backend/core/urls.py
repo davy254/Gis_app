@@ -10,6 +10,10 @@ from core.views import (
     render_form,
     save_form,
     submit_data,
+    submissions_geojson,
+    dashboard,
+    forms_api,
+    landing,
 )
 
 # ---------------------------------------------------------------------------
@@ -57,4 +61,12 @@ urlpatterns = [
     # --- Data Submission ---
     # Accepts POST with form data and optional GPS coordinates
     path('submit-data/', submit_data, name='submit-data'),
+
+    path('api/submissions-geojson/', submissions_geojson),
+
+    path('dashboard/', dashboard),
+
+    path('api/forms/', forms_api),
+
+    path('', landing)
 ]
