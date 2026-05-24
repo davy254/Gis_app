@@ -1,5 +1,5 @@
 asgiref==3.11.1
-Django==6.0.4
+Django>=5.2
 django-filter==25.2
 djangorestframework==3.16.1
 djangorestframework-gis==1.2.0
